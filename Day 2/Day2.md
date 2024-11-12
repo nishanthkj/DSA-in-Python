@@ -79,11 +79,6 @@
 
 ---
 
-### **Feedback Time**  
-- A quick session to provide **feedback** on the course content and your learning experience.
-
----
-
 ### **Key Takeaways:**
 - **Big O Notation** helps analyze the **efficiency** of algorithms.
 - Focus on **dominant terms** and **drop constants** when analyzing complexity.
