@@ -1,5 +1,4 @@
-Here's a concise Python-based note for Circular Doubly Linked List (CDLL) concepts, including the mentioned methods:
-
+m
 ---
 
 ### Circular Doubly Linked List (CDLL) Notes
