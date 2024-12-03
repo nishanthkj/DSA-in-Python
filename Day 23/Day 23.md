@@ -1,211 +1,202 @@
 
 
-### **What is Queue?**
-- **Queue** is a linear data structure that follows the **FIFO (First In, First Out)** principle.
-- Common operations:
-  - **Enqueue**: Add an element to the rear of the queue.
-  - **Dequeue**: Remove an element from the front of the queue.
-  - **Peek**: Retrieve the front element without removal.
-  - **isEmpty**: Check if the queue is empty.
-- **Applications**:
-  - Task scheduling.
-  - Breadth-First Search (BFS).
-  - Managing data buffers.
+### **Three in One**
+The goal is to implement three stacks using a single list. This approach partitions the list into three segments.
 
----
-
-### **Queue Using Python List (No Size Limit)**
-- Python lists are dynamic and can be used to implement queues.
-- Operations:
-  - **Enqueue**: `list.append(element)`
-  - **Dequeue**: `list.pop(0)` (inefficient due to shifting).
-- Example:
+#### **Python Implementation**
 ```python
-queue = []
-queue.append(10)  # Enqueue
-queue.append(20)
-queue.pop(0)      # Dequeue
-print(queue)      # Output: [20]
+class ThreeInOne:
+    def __init__(self, stack_size):
+        self.num_stacks = 3
+        self.stack_size = stack_size
+        self.array = [None] * (stack_size * self.num_stacks)
+        self.sizes = [0] * self.num_stacks
+
+    def is_full(self, stack_num):
+        return self.sizes[stack_num] == self.stack_size
+
+    def is_empty(self, stack_num):
+        return self.sizes[stack_num] == 0
+
+    def index_of_top(self, stack_num):
+        offset = stack_num * self.stack_size
+        return offset + self.sizes[stack_num] - 1
+
+    def push(self, stack_num, value):
+        if self.is_full(stack_num):
+            raise Exception("Stack is full")
+        self.sizes[stack_num] += 1
+        self.array[self.index_of_top(stack_num)] = value
+
+    def pop(self, stack_num):
+        if self.is_empty(stack_num):
+            raise Exception("Stack is empty")
+        top_index = self.index_of_top(stack_num)
+        value = self.array[top_index]
+        self.array[top_index] = None
+        self.sizes[stack_num] -= 1
+        return value
+
+    def peek(self, stack_num):
+        if self.is_empty(stack_num):
+            raise Exception("Stack is empty")
+        return self.array[self.index_of_top(stack_num)]
+
+# Example Usage
+stacks = ThreeInOne(5)
+stacks.push(0, 10)  # Push 10 to stack 0
+stacks.push(1, 20)  # Push 20 to stack 1
+print(stacks.pop(0))  # Output: 10
 ```
 
 ---
 
-### **Queue Using Python List - Operations**
-1. **Enqueue**: Add an element to the end.
-2. **Dequeue**: Remove the element at the front.
-3. **Peek**: View the front element without removing.
+### **Stack Minimum**
+Design a stack that, in addition to `push` and `pop`, has a function `min` that returns the minimum element in O(1).
+
+#### **Python Implementation**
 ```python
-queue = []
-queue.append(10)  # Enqueue
-queue.append(20)
-print(queue[0])   # Peek: Output 10
-queue.pop(0)      # Dequeue
-```
-
----
-
-### **Circular Queue Using Python List**
-- **Circular Queue** optimizes memory usage by reusing empty spaces.
-- Key idea: Use modulo operator to manage index wrapping.
-```python
-class CircularQueue:
-    def __init__(self, size):
-        self.queue = [None] * size
-        self.size = size
-        self.front = self.rear = -1
-
-    def enqueue(self, item):
-        if (self.rear + 1) % self.size == self.front:
-            print("Queue is full!")
-        elif self.front == -1:  # First element
-            self.front = self.rear = 0
-        else:
-            self.rear = (self.rear + 1) % self.size
-        self.queue[self.rear] = item
-
-    def dequeue(self):
-        if self.front == -1:
-            print("Queue is empty!")
-        else:
-            temp = self.queue[self.front]
-            if self.front == self.rear:
-                self.front = self.rear = -1
-            else:
-                self.front = (self.front + 1) % self.size
-            return temp
-```
-
----
-
-### **Circular Queue Operations**
-1. **Enqueue**: Add an element.
-2. **Dequeue**: Remove an element.
-3. **Peek**: View the front element.
-4. **Delete**: Clear the entire queue.
-
----
-
-### **Queue Using Linked List**
-- Avoids the size limitation of arrays.
-- Stores elements dynamically as nodes in memory.
-```python
-class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
-
-class Queue:
+class MinStack:
     def __init__(self):
-        self.front = self.rear = None
+        self.stack = []
+        self.min_stack = []
 
-    def enqueue(self, item):
-        new_node = Node(item)
-        if not self.rear:
-            self.front = self.rear = new_node
-        else:
-            self.rear.next = new_node
-            self.rear = new_node
+    def push(self, value):
+        self.stack.append(value)
+        if not self.min_stack or value <= self.min_stack[-1]:
+            self.min_stack.append(value)
+
+    def pop(self):
+        if not self.stack:
+            raise Exception("Stack is empty")
+        value = self.stack.pop()
+        if value == self.min_stack[-1]:
+            self.min_stack.pop()
+        return value
+
+    def min(self):
+        if not self.min_stack:
+            raise Exception("Stack is empty")
+        return self.min_stack[-1]
+
+# Example Usage
+stack = MinStack()
+stack.push(5)
+stack.push(3)
+stack.push(7)
+print(stack.min())  # Output: 3
+stack.pop()
+print(stack.min())  # Output: 3
+```
+
+---
+
+### **Stack of Plates**
+Implements a stack that creates a new stack once the previous one exceeds a threshold.
+
+#### **Python Implementation**
+```python
+class SetOfStacks:
+    def __init__(self, capacity):
+        self.stacks = []
+        self.capacity = capacity
+
+    def push(self, value):
+        if not self.stacks or len(self.stacks[-1]) == self.capacity:
+            self.stacks.append([])
+        self.stacks[-1].append(value)
+
+    def pop(self):
+        if not self.stacks:
+            raise Exception("All stacks are empty")
+        value = self.stacks[-1].pop()
+        if len(self.stacks[-1]) == 0:
+            self.stacks.pop()
+        return value
+
+# Example Usage
+stacks = SetOfStacks(3)
+stacks.push(1)
+stacks.push(2)
+stacks.push(3)
+stacks.push(4)  # Creates a new stack
+print(stacks.pop())  # Output: 4
+```
+
+---
+
+### **Queue via Stacks**
+Implements a queue using two stacks.
+
+#### **Python Implementation**
+```python
+class QueueViaStacks:
+    def __init__(self):
+        self.stack1 = []
+        self.stack2 = []
+
+    def enqueue(self, value):
+        self.stack1.append(value)
 
     def dequeue(self):
-        if not self.front:
-            print("Queue is empty!")
-        else:
-            temp = self.front
-            self.front = self.front.next
-            if not self.front:
-                self.rear = None
-            return temp.data
+        if not self.stack2:
+            while self.stack1:
+                self.stack2.append(self.stack1.pop())
+        if not self.stack2:
+            raise Exception("Queue is empty")
+        return self.stack2.pop()
+
+# Example Usage
+queue = QueueViaStacks()
+queue.enqueue(10)
+queue.enqueue(20)
+print(queue.dequeue())  # Output: 10
 ```
 
 ---
 
-### **Queue Linked List Operations**
-1. **Create**: Initialize `front` and `rear` pointers.
-2. **Enqueue**: Add a new node at the rear.
-3. **Dequeue**: Remove the front node.
+### **Animal Shelter**
+A queue-like structure to manage animals in an animal shelter with operations like `enqueue`, `dequeueAny`, `dequeueDog`, and `dequeueCat`.
 
----
-
-### **Queue Linked List Other Operations**
-1. **isEmpty**: Return `True` if the front pointer is `None`.
-2. **Peek**: Access the front node without removal.
-
----
-
-### **Time and Space Complexity**
-| Operation     | List Queue (Dynamic) | Linked List Queue |
-|---------------|-----------------------|-------------------|
-| Enqueue       | \( O(1) \)           | \( O(1) \)        |
-| Dequeue       | \( O(n) \) (shifting)| \( O(1) \)        |
-| Space Usage   | \( O(n) \)           | \( O(n) \)        |
-
----
-
-### **List vs Linked List Implementation**
-| Feature           | List                   | Linked List          |
-|--------------------|------------------------|----------------------|
-| **Size**          | Dynamic                | Unlimited            |
-| **Efficiency**    | Dequeue is \( O(n) \)  | Dequeue is \( O(1) \)|
-| **Memory Usage**  | Higher (shifting data) | Lower                |
-
----
-
-### **Collections Module**
-- The `deque` class in `collections` provides efficient queue functionality.
-- **Advantages**: \( O(1) \) for append and pop operations.
+#### **Python Implementation**
 ```python
-from collections import deque
+class AnimalShelter:
+    def __init__(self):
+        self.dogs = []
+        self.cats = []
+        self.order = 0
 
-queue = deque()
-queue.append(10)    # Enqueue
-queue.popleft()     # Dequeue
-```
+    def enqueue(self, animal, type):
+        if type == "dog":
+            self.dogs.append((self.order, animal))
+        elif type == "cat":
+            self.cats.append((self.order, animal))
+        self.order += 1
 
----
+    def dequeueAny(self):
+        if not self.dogs and not self.cats:
+            raise Exception("No animals available")
+        if not self.dogs:
+            return self.dequeueCat()
+        if not self.cats:
+            return self.dequeueDog()
+        if self.dogs[0][0] < self.cats[0][0]:
+            return self.dequeueDog()
+        else:
+            return self.dequeueCat()
 
-### **Queue Module**
-- Provides thread-safe queue implementations.
-- Types:
-  - `Queue`: FIFO.
-  - `LifoQueue`: LIFO (stack-like).
-  - `PriorityQueue`: Based on priorities.
+    def dequeueDog(self):
+        if not self.dogs:
+            raise Exception("No dogs available")
+        return self.dogs.pop(0)[1]
 
----
+    def dequeueCat(self):
+        if not self.cats:
+            raise Exception("No cats available")
+        return self.cats.pop(0)[1]
 
-### **Multiprocessing Module**
-- `multiprocessing.Queue` for inter-process communication.
-- Used in parallel processing.
-
----
-
-### **Removing Numbers in Python**
-To remove numbers from a list, use these techniques:
-
-1. **Remove First Occurrence**:
-   ```python
-   numbers = [1, 2, 3, 4, 3]
-   numbers.remove(3)  # Removes the first occurrence
-   print(numbers)  # Output: [1, 2, 4, 3]
-   ```
-
-2. **Remove All Occurrences**:
-   ```python
-   numbers = [1, 2, 3, 4, 3]
-   numbers = [x for x in numbers if x != 3]
-   print(numbers)  # Output: [1, 2, 4]
-   ```
-
-3. **Remove by Index**:
-   ```python
-   numbers = [1, 2, 3, 4]
-   numbers.pop(2)  # Removes the number at index 2
-   print(numbers)  # Output: [1, 2, 4]
-   ```
-
-4. **Clear All Numbers**:
-   ```python
-   numbers = [1, 2, 3, 4]
-   numbers.clear()
-   print(numbers)  # Output: []
-   ```
-
+# Example Usage
+shelter = AnimalShelter()
+shelter.enqueue("Dog1", "dog")
+shelter.enqueue("Cat1", "cat")
+print(shelter.dequeueAny())  # Output: Dog1
